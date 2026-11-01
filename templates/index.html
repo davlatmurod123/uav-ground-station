@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>UAV Ground Station</title>
+<style>
+  body { background:#0f172a; color:#e2e8f0; font-family:Arial; margin:0; padding:30px; }
+  h1 { margin-top:0; }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .card { background:#1e293b; padding:20px; border-radius:12px; }
+  .label { color:#94a3b8; font-size:14px; }
+  .value { font-size:32px; margin-top:8px; }
+  .ok { color:#4ade80; } .bad { color:#f87171; }
+</style>
+</head>
+<body>
+<h1>UAV Ground Control</h1>
+<div class="grid">
+  <div class="card"><div class="label">Altitude</div><div class="value" id="alt">-</div></div>
+  <div class="card"><div class="label">Speed</div><div class="value" id="speed">-</div></div>
+  <div class="card"><div class="label">Battery</div><div class="value" id="battery">-</div></div>
+  <div class="card"><div class="label">Latitude</div><div class="value" id="lat">-</div></div>
+  <div class="card"><div class="label">Longitude</div><div class="value" id="lon">-</div></div>
+  <div class="card"><div class="label">Temperature</div><div class="value" id="temp">-</div></div>
+  <div class="card"><div class="label">Link</div><div class="value" id="link">-</div></div>
+  <div class="card"><div class="label">Flight time</div><div class="value" id="t">-</div></div>
+</div>
+<script>
+async function update() {
+  try {
+    const d = await (await fetch("/api/telemetry")).json();
+    alt.textContent = d.alt + " m";
+    speed.textContent = d.speed + " m/s";
+    battery.textContent = d.battery + " %";
+    battery.className = "value " + (d.battery > 20 ? "ok" : "bad");
+    lat.textContent = d.lat;
+    lon.textContent = d.lon;
+    temp.textContent = d.temp + " °C";
+    link.textContent = d.link;
+    link.className = "value " + (d.link === "OK" ? "ok" : "bad");
+    t.textContent = d.t + " s";
+  } catch (e) {
+    link.textContent = "NO SIGNAL";
+    link.className = "value bad";
+  }
+}
+setInterval(update, 1000);
+update();
+</script>
+</body>
+</html>
